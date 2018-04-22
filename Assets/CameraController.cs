@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour {
         public float height;
     }
 
-    private struct DisplaySpace
+    private struct Area
     {
         public float left;
         public float right;
@@ -52,12 +52,15 @@ public class CameraController : MonoBehaviour {
         Clip();
     }
 
+    /// <summary>
+    /// カメラが画面外に行きすぎないよう調整
+    /// </summary>
     void Clip()
     {
         if (this.cameraComponent.orthographicSize < this.minZoomSize) this.cameraComponent.orthographicSize = this.minZoomSize;
         if (this.cameraComponent.orthographicSize > this.maxZoomSize) this.cameraComponent.orthographicSize = this.maxZoomSize;
 
-        var currentSpace = calcDisplaySpace();
+        var currentSpace = calcCurrentDisplayArea();
 
         var overTop    = Math.Abs(currentSpace.top)    - (this.restriction.height / 2);
         var overBottom = Math.Abs(currentSpace.bottom) - (this.restriction.height / 2);
@@ -71,9 +74,13 @@ public class CameraController : MonoBehaviour {
         else if (overRight > 0) this.transform.Translate(new Vector3(-1 * overRight, 0, 0));
     }
 
-    DisplaySpace calcDisplaySpace()
+    /// <summary>
+    /// 現在表示している画面のAreaを計算し返却
+    /// </summary>
+    /// <returns>現在表示している画面のArea</returns>
+    Area calcCurrentDisplayArea()
     {
-        DisplaySpace outSpace;
+        Area outSpace;
         var displayHeight = this.cameraComponent.orthographicSize * 2;
         var displayWidth = displayHeight * this.cameraComponent.aspect;
 
